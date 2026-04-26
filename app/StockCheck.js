@@ -253,12 +253,17 @@ export default function StockCheck() {
             <span>점검</span>
           </span>
         </Link>
-        <div style={{
-          fontSize: 12, color: C.muted, fontWeight: 500,
+<div style={{
+          fontSize: 12, color: C.muted, fontWeight: 600,
           padding: "6px 12px", background: C.primaryLight, color: C.primary,
           borderRadius: 999, display: "inline-flex", alignItems: "center", gap: 6,
         }}>
-          <Sparkles size={12} strokeWidth={2.5}/> AI 분석
+          <span style={{
+            width: 6, height: 6, borderRadius: "50%",
+            background: C.primary,
+            animation: "live-pulse 1.6s infinite",
+          }}/>
+          AI 실시간 주식분석
         </div>
       </header>
 
@@ -622,10 +627,13 @@ export default function StockCheck() {
         </div>
       </footer>
 
-      <style>{`
+<style>{`
         @keyframes spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
         .spin { animation: spin 1s linear infinite; }
-
+        @keyframes live-pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.4; transform: scale(0.85); }
+        }
         .hero-title {
           font-size: 44px;
         }
