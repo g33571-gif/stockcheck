@@ -302,12 +302,19 @@ export default function StockCheck() {
                   <span style={{ color: C.primary }}>딱 한 번만</span> 보세요
                 </h1>
 
-                <p style={{
-                  fontSize: 16, color: C.muted, lineHeight: 1.6,
-                  marginBottom: 32, maxWidth: 520, marginLeft: "auto", marginRight: "auto",
+<p style={{
+                  fontSize: 15,
+                  color: C.muted,
+                  lineHeight: 1.6,
+                  marginBottom: 32,
+                  maxWidth: 480,
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                  padding: "0 16px",
+                  wordBreak: "keep-all",
                 }}>
-                  AI가 최신 뉴스, 토론방 분위기, 위험 신호를<br className="br-mobile-hide"/>
-                  <strong style={{ color: C.ink, fontWeight: 700 }}> 한 줄</strong>로 정리해드립니다
+                  AI가 최신 뉴스, 토론방 분위기, 위험 신호를{" "}
+                  <strong style={{ color: C.ink, fontWeight: 700 }}>한 줄</strong>로 정리해드립니다
                 </p>
               </div>
             )}
