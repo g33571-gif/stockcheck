@@ -238,15 +238,19 @@ export default function StockCheck() {
         background: C.bg,
         position: "sticky", top: 0, zIndex: 30,
       }}>
-        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", color: C.ink }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: 10,
-            background: `linear-gradient(135deg, ${C.primary}, ${C.primaryDark})`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            color: "#FFF", fontWeight: 800, fontSize: 14, letterSpacing: "-0.02em",
-          }}>1</div>
-          <span style={{ fontWeight: 800, fontSize: 17, letterSpacing: "-0.02em" }}>
-            1분점검
+<Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: C.ink }}>
+          {/* 차트 막대 로고 */}
+          <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+            <rect width="34" height="34" rx="9" fill={C.primary}/>
+            <rect x="7"  y="20" width="4" height="7"  rx="1" fill="#FFFFFF" opacity="0.55"/>
+            <rect x="13" y="15" width="4" height="12" rx="1" fill="#FFFFFF" opacity="0.75"/>
+            <rect x="19" y="11" width="4" height="16" rx="1" fill="#FFFFFF" opacity="0.9"/>
+            <circle cx="25" cy="9" r="2.5" fill="#FFFFFF"/>
+          </svg>
+          <span style={{ fontWeight: 800, fontSize: 17, letterSpacing: "-0.03em", lineHeight: 1 }}>
+            <span>1분</span>
+            <span style={{ color: C.primary }}>주식</span>
+            <span>점검</span>
           </span>
         </Link>
         <div style={{
@@ -590,14 +594,17 @@ export default function StockCheck() {
             display: "flex", justifyContent: "space-between", alignItems: "center",
             flexWrap: "wrap", gap: 16, marginBottom: 16,
           }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div style={{
-                width: 24, height: 24, borderRadius: 7,
-                background: `linear-gradient(135deg, ${C.primary}, ${C.primaryDark})`,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                color: "#FFF", fontWeight: 800, fontSize: 11,
-              }}>1</div>
-              <span style={{ fontWeight: 700, fontSize: 14, color: C.ink }}>1분점검</span>
+<div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <svg width="24" height="24" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="34" height="34" rx="9" fill={C.primary}/>
+                <rect x="7"  y="20" width="4" height="7"  rx="1" fill="#FFFFFF" opacity="0.55"/>
+                <rect x="13" y="15" width="4" height="12" rx="1" fill="#FFFFFF" opacity="0.75"/>
+                <rect x="19" y="11" width="4" height="16" rx="1" fill="#FFFFFF" opacity="0.9"/>
+                <circle cx="25" cy="9" r="2.5" fill="#FFFFFF"/>
+              </svg>
+              <span style={{ fontWeight: 700, fontSize: 14, color: C.ink }}>
+                <span>1분</span><span style={{ color: C.primary }}>주식</span><span>점검</span>
+              </span>
             </div>
             <div style={{ display: "flex", gap: 20, fontSize: 13, color: C.muted, fontWeight: 500 }}>
               <Link href="/privacy" style={{ color: "inherit", textDecoration: "none" }}>개인정보처리방침</Link>
