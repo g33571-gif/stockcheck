@@ -39,8 +39,7 @@ export default function About() {
       <h2 style={sectionStyle}>문의</h2>
       <p style={pStyle}>
         서비스 개선 제안, 오류 신고 등은 아래 이메일로 보내주세요.<br/>
-        <a href="mailto:contact@example.com" style={{ color: "#FF4D14" }}>contact@example.com</a>
-        <br/><span style={{ fontSize: 12, color: "#6B6B66" }}>※ 실제 운영 시 본인 이메일로 변경하세요</span>
+        <a href="mailto:contact@example.com" style={{ color: "#FF4D14" }}>77rrr11@gmail.com</a>
       </p>
     </StaticPage>
   );
