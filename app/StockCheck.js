@@ -293,7 +293,6 @@ export default function StockCheck() {
                   <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.primary }}/>
                   투자 전 60초 체크리스트
                 </div>
-
 <h1 className="hero-title" style={{
                   fontWeight: 800, lineHeight: 1.2, letterSpacing: "-0.04em",
                   marginBottom: 16, color: C.ink, wordBreak: "keep-all",
