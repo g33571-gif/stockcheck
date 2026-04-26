@@ -4,10 +4,16 @@ export default function StaticPage({ title, eyebrow, children }) {
   return (
     <div style={{ minHeight: "100vh", background: "#FAFAF7", fontFamily: '"Pretendard", -apple-system, sans-serif', color: "#0A0A0A", display: "flex", flexDirection: "column" }}>
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 28px", borderBottom: "1px solid rgba(10,10,10,0.10)" }}>
-        <Link href="/" style={{ display: "flex", alignItems: "baseline", gap: 8, textDecoration: "none", color: "inherit" }}>
-          <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 11, color: "#FF4D14", letterSpacing: "0.05em" }}>01</span>
-          <span style={{ fontFamily: '"Instrument Serif", serif', fontSize: 22, letterSpacing: "-0.02em" }}>
-            <em style={{ fontStyle: "italic", color: "#FF4D14" }}>1분</em>점검
+<Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: "#0A0A0A" }}>
+          <svg width="32" height="32" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="34" height="34" rx="9" fill="#7C3AED"/>
+            <rect x="7"  y="20" width="4" height="7"  rx="1" fill="#FFFFFF" opacity="0.55"/>
+            <rect x="13" y="15" width="4" height="12" rx="1" fill="#FFFFFF" opacity="0.75"/>
+            <rect x="19" y="11" width="4" height="16" rx="1" fill="#FFFFFF" opacity="0.9"/>
+            <circle cx="25" cy="9" r="2.5" fill="#FFFFFF"/>
+          </svg>
+          <span style={{ fontWeight: 800, fontSize: 17, letterSpacing: "-0.03em" }}>
+            <span>1분</span><span style={{ color: "#7C3AED" }}>주식</span><span>점검</span>
           </span>
         </Link>
         <Link href="/" style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 11, color: "#6B6B66", letterSpacing: "0.08em", textTransform: "uppercase", textDecoration: "none" }}>
