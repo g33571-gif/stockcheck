@@ -62,8 +62,7 @@ export default function Privacy() {
       <h2 style={sectionStyle}>7. 개인정보 보호책임자</h2>
       <p style={pStyle}>
         개인정보 보호책임자: 운영자<br/>
-        문의: <a href="mailto:contact@example.com" style={{ color: "#FF4D14" }}>contact@example.com</a>
-        <br/><span style={{ fontSize: 12, color: "#6B6B66" }}>※ 실제 운영 시 본인 이메일로 변경하세요</span>
+        문의: <a href="mailto:contact@example.com" style={{ color: "#FF4D14" }}>77rrr11@gmail.com</a>
       </p>
 
       <h2 style={sectionStyle}>8. 시행일 및 변경 고지</h2>
