@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from "react";
 import Link from "next/link";
-import { Search, ArrowRight, ExternalLink, Loader2, Newspaper, MessageCircle, AlertTriangle, RotateCcw } from "lucide-react";
+import { Search, ArrowRight, ExternalLink, Loader2, Newspaper, MessageCircle, AlertTriangle, RotateCcw, Sparkles, TrendingUp, Shield } from "lucide-react";
 
 const STOCKS_RAW = [
   ["삼성전자","005930","KOSPI"],["SK하이닉스","000660","KOSPI"],["LG에너지솔루션","373220","KOSPI"],
@@ -64,6 +64,22 @@ STOCK_DB.forEach(s => { if (!CODE_TO_STOCK[s.c]) CODE_TO_STOCK[s.c] = s; });
 
 const POPULAR = ["삼성전자","SK하이닉스","LG에너지솔루션","카카오","네이버","현대차","셀트리온"];
 
+// Color tokens — 보라색 메인 포인트
+const C = {
+  primary: "#7C3AED",      // 메인 보라
+  primaryDark: "#6D28D9",
+  primaryLight: "#F5F3FF", // 연한 배경
+  primarySoft: "#EDE9FE",
+  ink: "#111827",
+  ink2: "#374151",
+  muted: "#6B7280",
+  muted2: "#9CA3AF",
+  bg: "#FFFFFF",
+  bgSoft: "#F9FAFB",
+  border: "#E5E7EB",
+  borderSoft: "#F3F4F6",
+};
+
 function findMatches(q) {
   if (!q) return [];
   const ql = q.toLowerCase();
@@ -85,30 +101,30 @@ function highlightText(text, q) {
   return (
     <>
       {text.slice(0, idx)}
-      <span style={{ color: "#FF4D14", fontWeight: 700 }}>{text.slice(idx, idx + q.length)}</span>
+      <span style={{ color: C.primary, fontWeight: 700 }}>{text.slice(idx, idx + q.length)}</span>
       {text.slice(idx + q.length)}
     </>
   );
 }
 
-function AdSlot({ id, label = "광고", height = 90, variant = "default" }) {
+function AdSlot({ id, label = "Sponsored", height = 90, variant = "default" }) {
   const isSquare = variant === "square";
   const isSponsored = variant === "sponsored";
   return (
-    <div data-ad-slot={id} style={{ width: "100%", margin: isSponsored ? "20px 0" : "16px 0" }}>
+    <div data-ad-slot={id} style={{ width: "100%", margin: isSponsored ? "24px 0" : "16px 0" }}>
       <div style={{
-        fontFamily: "JetBrains Mono, monospace", fontSize: 9, letterSpacing: "0.18em",
-        textTransform: "uppercase", color: "#9B9B95", marginBottom: 6,
+        fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase",
+        color: C.muted2, marginBottom: 8, fontWeight: 500,
         textAlign: isSquare ? "center" : "left",
       }}>{label}</div>
       <div id={`ad-${id}`} style={{
         width: "100%", minHeight: isSquare ? 250 : height,
-        background: "#FFFFFF", border: "1px dashed rgba(10,10,10,0.15)", borderRadius: 10,
+        background: C.bgSoft, border: `1px dashed ${C.border}`, borderRadius: 16,
         display: "flex", alignItems: "center", justifyContent: "center",
-        color: "#B5B5B0", fontSize: 12, fontFamily: "JetBrains Mono, monospace",
-        letterSpacing: "0.05em", overflow: "hidden",
+        color: C.muted2, fontSize: 12, fontWeight: 500,
+        letterSpacing: "0.02em", overflow: "hidden",
       }}>
-        AD SLOT · {id} · {isSquare ? "300×250" : `${height}px banner`}
+        AD SLOT · {id} · {isSquare ? "300×250" : `${height}px`}
       </div>
     </div>
   );
@@ -126,14 +142,6 @@ export default function StockCheck() {
   const blurTimer = useRef(null);
 
   const matches = findMatches(query.trim());
-
-  const today = (() => {
-    const d = new Date();
-    const wd = ["SUN","MON","TUE","WED","THU","FRI","SAT"][d.getDay()];
-    const mo = String(d.getMonth() + 1).padStart(2, "0");
-    const da = String(d.getDate()).padStart(2, "0");
-    return `${wd} · ${d.getFullYear()}.${mo}.${da}`;
-  })();
 
   const resolveStock = (q) => {
     if (/^\d{6}$/.test(q)) return CODE_TO_STOCK[q] || { n: "", c: q, m: "?" };
@@ -207,72 +215,107 @@ export default function StockCheck() {
   };
 
   const riskColor = {
-    "정상": { bg: "#E8F5EE", text: "#15803D", border: "#22C55E" },
-    "주의": { bg: "#FEF9C3", text: "#A16207", border: "#EAB308" },
-    "경고": { bg: "#FFEDD5", text: "#C2410C", border: "#F97316" },
-    "위기": { bg: "#FEE2E2", text: "#991B1B", border: "#DC2626" },
+    "정상": { bg: "#ECFDF5", text: "#065F46", border: "#10B981", dot: "#10B981" },
+    "주의": { bg: "#FEFCE8", text: "#854D0E", border: "#EAB308", dot: "#EAB308" },
+    "경고": { bg: "#FFF7ED", text: "#9A3412", border: "#F97316", dot: "#F97316" },
+    "위기": { bg: "#FEF2F2", text: "#991B1B", border: "#EF4444", dot: "#EF4444" },
   };
   const rl = result?.riskLevel && riskColor[result.riskLevel];
   const showResult = result && !loading;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#FAFAF7", fontFamily: '"Pretendard", -apple-system, sans-serif', color: "#0A0A0A", display: "flex", flexDirection: "column" }}>
-      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 28px", borderBottom: "1px solid rgba(10,10,10,0.10)" }}>
-        <Link href="/" style={{ display: "flex", alignItems: "baseline", gap: 8, textDecoration: "none", color: "inherit" }}>
-          <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 11, color: "#FF4D14", letterSpacing: "0.05em" }}>01</span>
-          <span style={{ fontFamily: '"Instrument Serif", serif', fontSize: 22, letterSpacing: "-0.02em" }}>
-            <em style={{ fontStyle: "italic", color: "#FF4D14" }}>1분</em>점검
+    <div style={{
+      minHeight: "100vh",
+      background: C.bg,
+      fontFamily: '"Pretendard", -apple-system, "Apple SD Gothic Neo", sans-serif',
+      color: C.ink,
+      display: "flex", flexDirection: "column",
+    }}>
+      {/* HEADER — minimal */}
+      <header style={{
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+        padding: "16px 24px", borderBottom: `1px solid ${C.borderSoft}`,
+        background: C.bg,
+        position: "sticky", top: 0, zIndex: 30,
+      }}>
+        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", color: C.ink }}>
+          <div style={{
+            width: 32, height: 32, borderRadius: 10,
+            background: `linear-gradient(135deg, ${C.primary}, ${C.primaryDark})`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            color: "#FFF", fontWeight: 800, fontSize: 14, letterSpacing: "-0.02em",
+          }}>1</div>
+          <span style={{ fontWeight: 800, fontSize: 17, letterSpacing: "-0.02em" }}>
+            1분점검
           </span>
         </Link>
-        <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 11, color: "#6B6B66", letterSpacing: "0.08em", textTransform: "uppercase" }}>
-          {today}
+        <div style={{
+          fontSize: 12, color: C.muted, fontWeight: 500,
+          padding: "6px 12px", background: C.primaryLight, color: C.primary,
+          borderRadius: 999, display: "inline-flex", alignItems: "center", gap: 6,
+        }}>
+          <Sparkles size={12} strokeWidth={2.5}/> AI 분석
         </div>
       </header>
 
+      {/* TOP BANNER AD */}
       <div style={{ padding: "12px 20px 0", maxWidth: 1080, margin: "0 auto", width: "100%" }}>
         <AdSlot id="top-banner" label="Sponsored" height={90}/>
       </div>
 
+      {/* MAIN with sidebar */}
       <div className="main-grid" style={{
         flex: 1, display: "grid", gridTemplateColumns: "minmax(0, 1fr)",
         maxWidth: 1080, width: "100%", margin: "0 auto",
-        padding: "20px 20px 40px", gap: 24,
+        padding: "16px 20px 40px", gap: 24,
       }}>
         <main style={{ minWidth: 0 }}>
           <div style={{ width: "100%", maxWidth: 720, margin: "0 auto" }}>
 
             {!result && !loading && !error && (
-              <div style={{ textAlign: "center", marginBottom: 28, paddingTop: 20 }}>
-                <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "#FF4D14", marginBottom: 18, display: "inline-flex", alignItems: "center", gap: 10 }}>
-                  <span style={{ width: 22, height: 1, background: "#FF4D14" }}/>
+              <div style={{ textAlign: "center", paddingTop: 32, paddingBottom: 32 }}>
+                <div style={{
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  padding: "6px 14px", borderRadius: 999,
+                  background: C.primaryLight, color: C.primary,
+                  fontSize: 12, fontWeight: 600, letterSpacing: "-0.01em",
+                  marginBottom: 24,
+                }}>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.primary }}/>
                   투자 전 60초 체크리스트
-                  <span style={{ width: 22, height: 1, background: "#FF4D14" }}/>
                 </div>
-                <h1 style={{ fontFamily: '"Instrument Serif", serif', fontWeight: 400, fontSize: "clamp(40px, 6vw, 68px)", lineHeight: 1, letterSpacing: "-0.035em", marginBottom: 16 }}>
-                  매수 전,<br/>
-                  <span style={{ position: "relative", fontStyle: "italic", color: "#FF4D14" }}>
-                    딱 한 번만
-                    <span style={{ position: "absolute", left: 0, right: 0, bottom: 6, height: 6, background: "#FFF1EB", zIndex: -1 }}/>
-                  </span>{" "}
-                  보세요
+
+                <h1 className="hero-title" style={{
+                  fontWeight: 800, lineHeight: 1.15, letterSpacing: "-0.04em",
+                  marginBottom: 16, color: C.ink,
+                }}>
+                  매수 버튼을 누르기 전,<br/>
+                  <span style={{ color: C.primary }}>딱 한 번만</span> 보세요
                 </h1>
-                <p style={{ fontSize: 15, color: "#6B6B66", lineHeight: 1.6, marginBottom: 28 }}>
-                  종목명만 입력하면 — 최신 뉴스, 토론방 분위기, 위험 신호를<br/>
-                  각각 <strong style={{ color: "#0A0A0A", fontWeight: 600 }}>한 줄</strong>로 정리해드립니다.
+
+                <p style={{
+                  fontSize: 16, color: C.muted, lineHeight: 1.6,
+                  marginBottom: 32, maxWidth: 520, marginLeft: "auto", marginRight: "auto",
+                }}>
+                  AI가 최신 뉴스, 토론방 분위기, 위험 신호를<br className="br-mobile-hide"/>
+                  <strong style={{ color: C.ink, fontWeight: 700 }}> 한 줄</strong>로 정리해드립니다
                 </p>
               </div>
             )}
 
-            <div style={{ position: "relative", marginBottom: 14 }}>
+            {/* SEARCH BOX */}
+            <div style={{ position: "relative", marginBottom: 16 }}>
               <div style={{
-                display: "flex", alignItems: "center", background: "#FFFFFF",
-                border: showSugg ? "1.5px solid #FF4D14" : "1.5px solid #0A0A0A",
-                borderRadius: 14, padding: "5px 5px 5px 22px",
-                boxShadow: showSugg ? "0 4px 0 #FF4D14" : "0 2px 0 #0A0A0A",
+                display: "flex", alignItems: "center", background: C.bg,
+                border: `2px solid ${showSugg ? C.primary : C.border}`,
+                borderRadius: 999,
+                padding: "5px 5px 5px 22px",
+                boxShadow: showSugg
+                  ? `0 0 0 4px ${C.primarySoft}, 0 4px 16px rgba(124,58,237,0.12)`
+                  : `0 1px 3px rgba(0,0,0,0.04)`,
                 transition: "all .2s ease",
-                transform: showSugg ? "translateY(-2px)" : "none",
               }}>
-                <Search size={18} style={{ color: "#6B6B66", flexShrink: 0 }}/>
+                <Search size={20} strokeWidth={2.5} style={{ color: showSugg ? C.primary : C.muted, flexShrink: 0 }}/>
                 <input
                   ref={inputRef}
                   type="text"
@@ -281,33 +324,39 @@ export default function StockCheck() {
                   onFocus={() => { if (blurTimer.current) clearTimeout(blurTimer.current); setShowSugg(true); }}
                   onBlur={() => { blurTimer.current = setTimeout(() => setShowSugg(false), 150); }}
                   onKeyDown={handleKeyDown}
-                  placeholder="종목명 또는 6자리 코드 (예: 삼성전자, 005930)"
-                  style={{ flex: 1, padding: "16px 14px", fontSize: 17, fontWeight: 500, background: "transparent", color: "#0A0A0A", border: "none", outline: "none", minWidth: 0, fontFamily: "inherit" }}
+                  placeholder="종목명 또는 종목코드"
+                  style={{
+                    flex: 1, padding: "16px 14px", fontSize: 16, fontWeight: 500,
+                    background: "transparent", color: C.ink, border: "none", outline: "none",
+                    minWidth: 0, fontFamily: "inherit",
+                  }}
                   disabled={loading}
                 />
                 <button
                   onClick={triggerCheck}
                   disabled={loading}
                   style={{
-                    background: loading ? "#6B6B66" : "#0A0A0A", color: "#FFF",
-                    padding: "12px 20px", borderRadius: 10, fontSize: 14, fontWeight: 600,
-                    display: "flex", alignItems: "center", gap: 8, border: "none",
+                    background: loading ? C.muted : C.ink,
+                    color: "#FFF", padding: "12px 22px", borderRadius: 999,
+                    fontSize: 14, fontWeight: 700, letterSpacing: "-0.01em",
+                    display: "flex", alignItems: "center", gap: 6, border: "none",
                     cursor: loading ? "not-allowed" : "pointer", flexShrink: 0,
-                    fontFamily: "inherit", transition: "background .15s",
+                    fontFamily: "inherit", transition: "all .15s",
                   }}
-                  onMouseEnter={e => { if (!loading) e.currentTarget.style.background = "#FF4D14"; }}
-                  onMouseLeave={e => { if (!loading) e.currentTarget.style.background = "#0A0A0A"; }}
+                  onMouseEnter={e => { if (!loading) e.currentTarget.style.background = C.primary; }}
+                  onMouseLeave={e => { if (!loading) e.currentTarget.style.background = C.ink; }}
                 >
-                  {loading ? <Loader2 size={16} className="spin"/> : <ArrowRight size={16}/>}
+                  {loading ? <Loader2 size={16} className="spin"/> : <ArrowRight size={16} strokeWidth={2.5}/>}
                   <span>점검</span>
                 </button>
               </div>
 
               {showSugg && matches.length > 0 && !loading && (
                 <div style={{
-                  position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0,
-                  background: "#FFF", border: "1px solid rgba(10,10,10,0.18)", borderRadius: 12,
-                  boxShadow: "0 12px 32px rgba(0,0,0,0.08)", maxHeight: 300, overflowY: "auto", zIndex: 50,
+                  position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0,
+                  background: C.bg, border: `1px solid ${C.border}`, borderRadius: 16,
+                  boxShadow: "0 12px 40px rgba(0,0,0,0.08)", maxHeight: 320, overflowY: "auto",
+                  zIndex: 50, padding: 6,
                 }}>
                   {matches.slice(0, 8).map((s, i) => (
                     <div
@@ -316,113 +365,195 @@ export default function StockCheck() {
                       onMouseEnter={() => setActiveIdx(i)}
                       style={{
                         display: "flex", justifyContent: "space-between", alignItems: "center",
-                        padding: "13px 18px", cursor: "pointer",
-                        borderBottom: i < Math.min(matches.length, 8) - 1 ? "1px solid rgba(10,10,10,0.10)" : "none",
-                        background: i === activeIdx ? "#FFF1EB" : "transparent", transition: "background .12s",
+                        padding: "12px 14px", cursor: "pointer", borderRadius: 12,
+                        background: i === activeIdx ? C.primaryLight : "transparent",
+                        transition: "background .12s",
                       }}
                     >
-                      <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                         <span style={{ fontSize: 15, fontWeight: 600 }}>{highlightText(s.n, query.trim())}</span>
                         <span style={{
-                          fontFamily: "JetBrains Mono, monospace", fontSize: 10, letterSpacing: "0.1em",
-                          padding: "2px 6px", borderRadius: 4, marginLeft: 10,
-                          background: s.m === "KOSDAQ" ? "#FFF1EB" : "#F0F0EC",
-                          color: s.m === "KOSDAQ" ? "#FF4D14" : "#6B6B66",
+                          fontSize: 10, letterSpacing: "0.04em", fontWeight: 600,
+                          padding: "3px 8px", borderRadius: 6,
+                          background: s.m === "KOSDAQ" ? "#FEF3C7" : "#DBEAFE",
+                          color: s.m === "KOSDAQ" ? "#92400E" : "#1E40AF",
                         }}>{s.m}</span>
                       </div>
-                      <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 13, color: "#6B6B66" }}>{s.c}</span>
+                      <span style={{ fontSize: 13, color: C.muted2, fontFamily: "ui-monospace, monospace" }}>{s.c}</span>
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
+            {/* HINT */}
             {!result && !loading && !error && (
-              <p style={{ fontSize: 12, color: "#6B6B66", textAlign: "center", marginBottom: 28 }}>
+              <p style={{ fontSize: 12, color: C.muted2, textAlign: "center", marginBottom: 32 }}>
                 <kbd style={kbdStyle}>↑</kbd> <kbd style={kbdStyle}>↓</kbd> 선택, <kbd style={kbdStyle}>Enter</kbd> 점검
               </p>
             )}
 
+            {/* POPULAR CHIPS */}
             {!result && !loading && !error && (
-              <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 8, marginBottom: 32 }}>
-                <div style={{ width: "100%", textAlign: "center", fontFamily: "JetBrains Mono, monospace", fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: "#6B6B66", marginBottom: 6 }}>
-                  자주 찾는 종목
+              <div style={{ marginBottom: 40 }}>
+                <div style={{
+                  fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
+                  color: C.muted, marginBottom: 12, textAlign: "center",
+                }}>자주 찾는 종목</div>
+                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 8 }}>
+                  {POPULAR.map(name => (
+                    <button
+                      key={name}
+                      onClick={() => { setQuery(name); runCheck(resolveStock(name)); }}
+                      style={{
+                        padding: "8px 16px", background: C.bg,
+                        border: `1px solid ${C.border}`, borderRadius: 999,
+                        fontSize: 13, fontWeight: 600, color: C.ink2, cursor: "pointer",
+                        transition: "all .15s", fontFamily: "inherit",
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.background = C.primaryLight;
+                        e.currentTarget.style.borderColor = C.primary;
+                        e.currentTarget.style.color = C.primary;
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.background = C.bg;
+                        e.currentTarget.style.borderColor = C.border;
+                        e.currentTarget.style.color = C.ink2;
+                      }}
+                    >{name}</button>
+                  ))}
                 </div>
-                {POPULAR.map(name => (
-                  <button
-                    key={name}
-                    onClick={() => { setQuery(name); runCheck(resolveStock(name)); }}
-                    style={{
-                      padding: "7px 14px", background: "#FFF",
-                      border: "1px solid rgba(10,10,10,0.18)", borderRadius: 999,
-                      fontSize: 13, fontWeight: 500, color: "#0A0A0A", cursor: "pointer",
-                      transition: "all .15s", fontFamily: "inherit",
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.background = "#0A0A0A"; e.currentTarget.style.color = "#FFF"; e.currentTarget.style.borderColor = "#0A0A0A"; e.currentTarget.style.transform = "translateY(-1px)"; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = "#FFF"; e.currentTarget.style.color = "#0A0A0A"; e.currentTarget.style.borderColor = "rgba(10,10,10,0.18)"; e.currentTarget.style.transform = "none"; }}
-                  >{name}</button>
-                ))}
               </div>
             )}
 
+            {/* FEATURE CARDS — only on idle */}
+            {!result && !loading && !error && (
+              <div style={{
+                display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                gap: 12, marginBottom: 32,
+              }}>
+                <FeatureCard icon={<Newspaper size={18} strokeWidth={2.2}/>} title="최신 뉴스" desc="일주일 내 핵심 뉴스 한 줄"/>
+                <FeatureCard icon={<MessageCircle size={18} strokeWidth={2.2}/>} title="토론방 분위기" desc="개인투자자 의견 한 줄"/>
+                <FeatureCard icon={<Shield size={18} strokeWidth={2.2}/>} title="위험 신호" desc="관리종목·상폐 등 점검"/>
+              </div>
+            )}
+
+            {/* LOADING */}
             {loading && (
-              <div style={{ marginTop: 20, padding: "40px 24px", background: "#FFF", border: "1px solid rgba(10,10,10,0.10)", borderRadius: 14, textAlign: "center" }}>
-                <Loader2 size={28} style={{ color: "#FF4D14", margin: "0 auto 14px" }} className="spin"/>
-                <div style={{ fontFamily: '"Instrument Serif", serif', fontSize: 22, marginBottom: 6 }}>
-                  <em style={{ fontStyle: "italic", color: "#FF4D14" }}>{resolvedStock?.n || query}</em> 점검 중
+              <div style={{
+                marginTop: 24, padding: "48px 24px",
+                background: C.bgSoft, borderRadius: 20, textAlign: "center",
+                border: `1px solid ${C.borderSoft}`,
+              }}>
+                <div style={{
+                  width: 56, height: 56, borderRadius: 16,
+                  background: C.primaryLight, display: "flex",
+                  alignItems: "center", justifyContent: "center",
+                  margin: "0 auto 16px",
+                }}>
+                  <Loader2 size={26} style={{ color: C.primary }} className="spin"/>
                 </div>
-                <p style={{ fontSize: 13, color: "#6B6B66" }}>최신 뉴스 · 토론방 · 공시를 확인하고 있어요</p>
+                <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 6, letterSpacing: "-0.02em" }}>
+                  <span style={{ color: C.primary }}>{resolvedStock?.n || query}</span> 점검 중
+                </div>
+                <p style={{ fontSize: 13, color: C.muted }}>최신 뉴스 · 토론방 · 공시를 확인하고 있어요</p>
               </div>
             )}
 
+            {/* ERROR */}
             {error && !loading && (
-              <div style={{ marginTop: 20, padding: "24px", background: "#FEE2E2", border: "1px solid #FCA5A5", borderRadius: 14, textAlign: "center" }}>
-                <AlertTriangle size={22} style={{ color: "#991B1B", margin: "0 auto 10px" }}/>
-                <div style={{ fontWeight: 600, color: "#991B1B", marginBottom: 4 }}>점검에 실패했어요</div>
-                <p style={{ fontSize: 13, color: "#7F1D1D", marginBottom: 14 }}>{error}</p>
+              <div style={{
+                marginTop: 24, padding: "24px",
+                background: "#FEF2F2", border: `1px solid #FECACA`, borderRadius: 16,
+                textAlign: "center",
+              }}>
+                <AlertTriangle size={24} style={{ color: "#DC2626", margin: "0 auto 10px" }}/>
+                <div style={{ fontWeight: 700, color: "#991B1B", marginBottom: 4 }}>점검에 실패했어요</div>
+                <p style={{ fontSize: 13, color: "#7F1D1D", marginBottom: 16 }}>{error}</p>
                 <button onClick={() => resolvedStock && runCheck(resolvedStock)}
-                  style={{ padding: "8px 16px", background: "#991B1B", color: "#FFF", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}
+                  style={{
+                    padding: "10px 18px", background: "#991B1B", color: "#FFF",
+                    border: "none", borderRadius: 999, fontSize: 13, fontWeight: 600,
+                    cursor: "pointer", fontFamily: "inherit",
+                  }}
                 >다시 시도</button>
               </div>
             )}
 
+            {/* RESULT */}
             {showResult && (
-              <div style={{ marginTop: 16 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 18, paddingBottom: 14, borderBottom: "2px solid #0A0A0A", flexWrap: "wrap", gap: 12 }}>
+              <div style={{ marginTop: 8 }}>
+                {/* Result header */}
+                <div style={{
+                  display: "flex", justifyContent: "space-between", alignItems: "center",
+                  marginBottom: 20, paddingBottom: 16, borderBottom: `1px solid ${C.border}`,
+                  flexWrap: "wrap", gap: 12,
+                }}>
                   <div>
-                    <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: "#6B6B66", marginBottom: 6 }}>
-                      점검 결과 · {resolvedStock?.m !== "?" ? resolvedStock?.m : "-"}
+                    <div style={{
+                      display: "inline-flex", alignItems: "center", gap: 6,
+                      fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
+                      color: C.primary, marginBottom: 6,
+                      padding: "3px 10px", background: C.primaryLight, borderRadius: 999,
+                    }}>
+                      <Sparkles size={11} strokeWidth={2.5}/> 점검 완료
                     </div>
-                    <div style={{ fontFamily: '"Instrument Serif", serif', fontSize: 32, lineHeight: 1, letterSpacing: "-0.02em" }}>
-                      {resolvedStock?.n || query} <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 13, color: "#6B6B66" }}>{resolvedStock?.c}</span>
+                    <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: "-0.03em" }}>
+                      {resolvedStock?.n || query}
+                      <span style={{ fontSize: 14, color: C.muted2, fontWeight: 500, marginLeft: 10, fontFamily: "ui-monospace, monospace" }}>
+                        {resolvedStock?.c} {resolvedStock?.m && resolvedStock.m !== "?" && `· ${resolvedStock.m}`}
+                      </span>
                     </div>
                   </div>
                   <button onClick={reset}
-                    style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", background: "transparent", border: "1px solid rgba(10,10,10,0.18)", borderRadius: 8, fontSize: 12, fontWeight: 500, color: "#0A0A0A", cursor: "pointer", fontFamily: "inherit" }}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 6,
+                      padding: "8px 14px", background: C.bgSoft,
+                      border: `1px solid ${C.border}`, borderRadius: 999,
+                      fontSize: 12, fontWeight: 600, color: C.ink2,
+                      cursor: "pointer", fontFamily: "inherit",
+                    }}
                   ><RotateCcw size={13}/> 새로 점검</button>
                 </div>
 
-                <ResultCard icon={<Newspaper size={16}/>} num="01" tag="NEWS" tagBg="#0A0A0A" title="최신 뉴스" body={result.news}/>
-                <ResultCard icon={<MessageCircle size={16}/>} num="02" tag="SENTIMENT" tagBg="#0A0A0A" title="토론방 분위기" body={result.sentiment}/>
-                <ResultCard icon={<AlertTriangle size={16}/>} num="03" tag={result.riskLevel || "RISK"} tagBg={rl?.border || "#DC2626"} title="위험 신호" body={result.risk} accent={rl}/>
+                <ResultCard icon={<Newspaper size={18} strokeWidth={2.2}/>} num="01" title="최신 뉴스" body={result.news} color={C.primary}/>
+                <ResultCard icon={<MessageCircle size={18} strokeWidth={2.2}/>} num="02" title="토론방 분위기" body={result.sentiment} color={C.primary}/>
+                <ResultCard icon={<Shield size={18} strokeWidth={2.2}/>} num="03" title="위험 신호" body={result.risk} color={C.primary} accent={rl} riskLevel={result.riskLevel}/>
 
+                {/* In-article ad */}
                 <AdSlot id="in-article" label="Sponsored" variant="sponsored" height={120}/>
 
-                <div style={{ marginTop: 16, padding: "16px 18px", background: "#F0F0EC", borderRadius: 12 }}>
-                  <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: "#6B6B66", marginBottom: 10 }}>
+                {/* External links */}
+                <div style={{
+                  marginTop: 20, padding: "20px 22px",
+                  background: C.bgSoft, borderRadius: 16,
+                  border: `1px solid ${C.borderSoft}`,
+                }}>
+                  <div style={{
+                    fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
+                    color: C.muted, marginBottom: 14, textTransform: "uppercase",
+                  }}>
                     공식 출처 바로가기
                   </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 8 }}>
+                  <div style={{
+                    display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+                    gap: 8,
+                  }}>
                     <ExtLink href={resolvedStock?.c ? `https://finance.naver.com/item/main.naver?code=${resolvedStock.c}` : "https://finance.naver.com"} label="네이버 시세"/>
                     <ExtLink href={resolvedStock?.c ? `https://finance.naver.com/item/board.naver?code=${resolvedStock.c}` : "https://finance.naver.com"} label="토론방"/>
                     <ExtLink href={`https://search.naver.com/search.naver?where=news&query=${encodeURIComponent(resolvedStock?.n || query)}`} label="관련 뉴스"/>
                     <ExtLink href={`https://dart.fss.or.kr/dsab007/main.do?textCrpNm=${encodeURIComponent(resolvedStock?.n || query)}`} label="DART 공시"/>
                   </div>
                   {result.sources && result.sources.length > 0 && (
-                    <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid rgba(10,10,10,0.10)" }}>
-                      <div style={{ fontSize: 11, color: "#6B6B66", marginBottom: 6 }}>참고 출처</div>
+                    <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.border}` }}>
+                      <div style={{ fontSize: 11, color: C.muted, marginBottom: 6, fontWeight: 600 }}>참고 출처</div>
                       {result.sources.slice(0, 5).map((src, i) => (
-                        <a key={i} href={src} target="_blank" rel="noopener noreferrer" style={{ display: "block", fontSize: 11, color: "#FF4D14", textDecoration: "none", marginBottom: 3, wordBreak: "break-all" }}>
+                        <a key={i} href={src} target="_blank" rel="noopener noreferrer"
+                          style={{
+                            display: "block", fontSize: 11, color: C.primary,
+                            textDecoration: "none", marginBottom: 3, wordBreak: "break-all",
+                          }}>
                           ↗ {src}
                         </a>
                       ))}
@@ -434,8 +565,9 @@ export default function StockCheck() {
           </div>
         </main>
 
+        {/* Sidebar Ads — desktop only */}
         <aside className="ad-sidebar" style={{ display: "none" }}>
-          <div style={{ position: "sticky", top: 20 }}>
+          <div style={{ position: "sticky", top: 80 }}>
             <AdSlot id="sidebar-top" label="Sponsored" variant="square"/>
             <div style={{ height: 16 }}/>
             <AdSlot id="sidebar-bottom" label="Sponsored" variant="square"/>
@@ -443,35 +575,71 @@ export default function StockCheck() {
         </aside>
       </div>
 
+      {/* Bottom banner */}
       <div style={{ padding: "0 20px 20px", maxWidth: 1080, margin: "0 auto", width: "100%" }}>
         <AdSlot id="bottom-banner" label="Sponsored" height={90}/>
       </div>
 
-      <footer style={{ padding: "24px 28px", borderTop: "1px solid rgba(10,10,10,0.10)", fontFamily: "JetBrains Mono, monospace", fontSize: 10, letterSpacing: "0.08em", color: "#6B6B66", textTransform: "uppercase" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, maxWidth: 1080, margin: "0 auto" }}>
-          <span>
-            <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "#22C55E", marginRight: 6 }} className="pulse"/>
-            실시간 분석 · 한국 주식
-          </span>
-          <div style={{ display: "flex", gap: 18 }}>
-            <Link href="/privacy" style={{ color: "#6B6B66", textDecoration: "none" }}>개인정보처리방침</Link>
-            <Link href="/terms" style={{ color: "#6B6B66", textDecoration: "none" }}>이용약관</Link>
-            <Link href="/about" style={{ color: "#6B6B66", textDecoration: "none" }}>소개</Link>
+      {/* FOOTER */}
+      <footer style={{
+        padding: "32px 24px", borderTop: `1px solid ${C.borderSoft}`,
+        background: C.bgSoft,
+      }}>
+        <div style={{ maxWidth: 1080, margin: "0 auto" }}>
+          <div style={{
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+            flexWrap: "wrap", gap: 16, marginBottom: 16,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{
+                width: 24, height: 24, borderRadius: 7,
+                background: `linear-gradient(135deg, ${C.primary}, ${C.primaryDark})`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: "#FFF", fontWeight: 800, fontSize: 11,
+              }}>1</div>
+              <span style={{ fontWeight: 700, fontSize: 14, color: C.ink }}>1분점검</span>
+            </div>
+            <div style={{ display: "flex", gap: 20, fontSize: 13, color: C.muted, fontWeight: 500 }}>
+              <Link href="/privacy" style={{ color: "inherit", textDecoration: "none" }}>개인정보처리방침</Link>
+              <Link href="/terms" style={{ color: "inherit", textDecoration: "none" }}>이용약관</Link>
+              <Link href="/about" style={{ color: "inherit", textDecoration: "none" }}>소개</Link>
+            </div>
           </div>
-        </div>
-        <div style={{ maxWidth: 1080, margin: "16px auto 0", paddingTop: 12, borderTop: "1px solid rgba(10,10,10,0.06)", fontSize: 10, color: "#9B9B95", textTransform: "none", letterSpacing: 0, lineHeight: 1.6 }}>
-          본 서비스는 정보 제공 목적으로만 운영되며, 어떠한 종류의 투자 자문이나 매매 권유도 아닙니다. 모든 투자 판단과 그에 따른 손익은 전적으로 투자자 본인에게 귀속됩니다.
+          <div style={{
+            paddingTop: 16, borderTop: `1px solid ${C.border}`,
+            fontSize: 11, color: C.muted2, lineHeight: 1.7,
+          }}>
+            본 서비스는 정보 제공 목적으로만 운영되며, 어떠한 종류의 투자 자문이나 매매 권유도 아닙니다.
+            모든 투자 판단과 그에 따른 손익은 전적으로 투자자 본인에게 귀속됩니다.
+          </div>
         </div>
       </footer>
 
       <style>{`
         @keyframes spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
         .spin { animation: spin 1s linear infinite; }
-        @keyframes pulse-anim { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
-        .pulse { animation: pulse-anim 1.6s infinite; }
+
+        .hero-title {
+          font-size: 44px;
+        }
+        @media (max-width: 640px) {
+          .hero-title {
+            font-size: 32px;
+          }
+          .br-mobile-hide {
+            display: none;
+          }
+        }
+        @media (min-width: 641px) and (max-width: 980px) {
+          .hero-title {
+            font-size: 38px;
+          }
+        }
+
         @media (min-width: 980px) {
           .main-grid { grid-template-columns: minmax(0, 1fr) 300px !important; }
           .ad-sidebar { display: block !important; }
+          .hero-title { font-size: 52px; }
         }
       `}</style>
     </div>
@@ -479,34 +647,77 @@ export default function StockCheck() {
 }
 
 const kbdStyle = {
-  fontFamily: "JetBrains Mono, monospace", fontSize: 10,
-  background: "#FFF", border: "1px solid rgba(10,10,10,0.18)",
-  borderRadius: 4, padding: "1px 5px", margin: "0 1px",
+  fontSize: 10, fontWeight: 600,
+  background: "#FFF", border: `1px solid ${C.border}`,
+  borderRadius: 4, padding: "1px 6px", margin: "0 1px",
+  color: C.ink2, fontFamily: "ui-monospace, monospace",
 };
 
-function ResultCard({ icon, num, tag, tagBg, title, body, accent }) {
+function FeatureCard({ icon, title, desc }) {
+  return (
+    <div style={{
+      padding: "16px 18px", background: C.bg,
+      border: `1px solid ${C.borderSoft}`, borderRadius: 16,
+      transition: "all .15s",
+    }}>
+      <div style={{
+        width: 36, height: 36, borderRadius: 10,
+        background: C.primaryLight, color: C.primary,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        marginBottom: 10,
+      }}>{icon}</div>
+      <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4, letterSpacing: "-0.01em" }}>{title}</div>
+      <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.5 }}>{desc}</div>
+    </div>
+  );
+}
+
+function ResultCard({ icon, num, title, body, color, accent, riskLevel }) {
   const isRisk = !!accent;
   return (
     <div style={{
-      background: isRisk ? accent.bg : "#FFFFFF",
-      border: isRisk ? `1px solid ${accent.border}` : "1px solid rgba(10,10,10,0.10)",
-      borderLeft: isRisk ? `4px solid ${accent.border}` : "4px solid #0A0A0A",
-      borderRadius: 12, padding: "18px 20px", marginBottom: 10,
+      background: isRisk ? accent.bg : C.bg,
+      border: `1px solid ${isRisk ? accent.border + "40" : C.borderSoft}`,
+      borderRadius: 16, padding: "20px 22px", marginBottom: 12,
     }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontFamily: '"Instrument Serif", serif', fontStyle: "italic", fontSize: 22, color: "#FF4D14", lineHeight: 1 }}>{num}</span>
-          <span style={{ display: "flex", alignItems: "center", gap: 6, color: isRisk ? accent.text : "#0A0A0A" }}>
-            {icon}
-            <span style={{ fontSize: 14, fontWeight: 600 }}>{title}</span>
-          </span>
+      <div style={{
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+        marginBottom: 12,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{
+            width: 38, height: 38, borderRadius: 12,
+            background: isRisk ? "#FFF" : C.primaryLight,
+            color: isRisk ? accent.text : color,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            border: isRisk ? `1px solid ${accent.border}40` : "none",
+          }}>{icon}</div>
+          <div>
+            <div style={{
+              fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
+              color: isRisk ? accent.text : C.muted2, marginBottom: 2,
+            }}>{num}</div>
+            <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.01em", color: isRisk ? accent.text : C.ink }}>
+              {title}
+            </div>
+          </div>
         </div>
-        <span style={{
-          fontFamily: "JetBrains Mono, monospace", fontSize: 9, letterSpacing: "0.16em",
-          padding: "3px 8px", borderRadius: 4, background: tagBg, color: "#FFF", fontWeight: 600,
-        }}>{tag}</span>
+        {isRisk && riskLevel && (
+          <span style={{
+            display: "inline-flex", alignItems: "center", gap: 6,
+            padding: "5px 12px", borderRadius: 999,
+            background: "#FFF", border: `1px solid ${accent.border}40`,
+            fontSize: 12, fontWeight: 700, color: accent.text,
+          }}>
+            <span style={{ width: 7, height: 7, borderRadius: "50%", background: accent.dot }}/>
+            {riskLevel}
+          </span>
+        )}
       </div>
-      <p style={{ fontSize: 15, lineHeight: 1.65, color: isRisk ? accent.text : "#0A0A0A", margin: 0 }}>{body}</p>
+      <p style={{
+        fontSize: 15, lineHeight: 1.7,
+        color: isRisk ? accent.text : C.ink2, margin: 0, fontWeight: 500,
+      }}>{body}</p>
     </div>
   );
 }
@@ -516,13 +727,23 @@ function ExtLink({ href, label }) {
     <a href={href} target="_blank" rel="noopener noreferrer"
       style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "10px 12px", background: "#FFF", borderRadius: 8,
-        textDecoration: "none", color: "#0A0A0A", fontSize: 12, fontWeight: 500,
-        border: "1px solid rgba(10,10,10,0.10)", transition: "all .15s",
+        padding: "11px 14px", background: C.bg, borderRadius: 10,
+        textDecoration: "none", color: C.ink2, fontSize: 13, fontWeight: 600,
+        border: `1px solid ${C.border}`, transition: "all .15s",
+      }}
+      onMouseEnter={e => {
+        e.currentTarget.style.borderColor = C.primary;
+        e.currentTarget.style.color = C.primary;
+        e.currentTarget.style.background = C.primaryLight;
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.borderColor = C.border;
+        e.currentTarget.style.color = C.ink2;
+        e.currentTarget.style.background = C.bg;
       }}
     >
       <span>{label}</span>
-      <ExternalLink size={12}/>
+      <ExternalLink size={13} strokeWidth={2.2}/>
     </a>
   );
 }
