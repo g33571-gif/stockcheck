@@ -299,9 +299,8 @@ export default function StockCheck() {
                   marginBottom: 16, color: C.ink, wordBreak: "keep-all",
                   padding: "0 12px",
                 }}>
-                  매수 버튼을 누르기 전,{" "}
-                  <span style={{ color: C.primary, whiteSpace: "nowrap" }}>딱 한 번만</span>{" "}
-                  보세요
+                  매수 버튼을 누르기 전,<br/>
+                  <span style={{ color: C.primary }}>딱 한 번만</span> 보세요
                 </h1>
 
                 <p style={{
